@@ -1,6 +1,6 @@
 import classes.console as console
 from classes.db import DB
-from classes.config import Config
+from config.config import Config
 
 # Set connection to the origin DB
 config=Config()
