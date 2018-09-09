@@ -86,4 +86,29 @@ class DB:
             file=File("logging.txt")
             file.log("[{}] SUCCESS! Migration successfully completed! \n".format(datetime.datetime.now()))
 
+    def generateTables(self,conn_destination):
+        cur = self.getConnection().cursor()
+        cur_dest = conn_destination.cursor()
 
+        blnTableGenerate=False
+        tables=self.getLinkedTables()
+        for table in tables:
+
+            strQuery="SHOW TABLES LIKE '{}'".format(table)
+            cur_dest.execute(strQuery)
+            tableExist=cur_dest.fetchall()
+
+            if not tableExist:
+                blnTableGenerate=True
+                cur.execute("SHOW CREATE TABLE {}".format(table))
+                data=cur.fetchall()
+                for table,script in data:
+                    cur_dest.execute(script)
+                    conn_destination.commit()
+                file=File("logging.txt")
+                file.log("[{}] SUCCESS! New table {} was created successfully! \n".format(datetime.datetime.now(),table))
+        if blnTableGenerate:
+            print("Tables successfully generated!")
+        else:
+            print("No new tables to generate!")
+        conn_destination.close()
